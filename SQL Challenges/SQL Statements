@@ -1,0 +1,514 @@
+-- This file is intended for notes
+-- and for demonstrating how to work
+-- with SQLite in Codespaces.
+
+-- These two statements operate on the 
+-- restaurant.db SQLite database.
+/*
+CREATED BY : Owen Revell
+CREATE DATE : 22/09/24
+Description : Display all Customers full Name and Email addresses sorted by ABC Last Name 
+
+*/ 
+
+SELECT 
+FirstName,
+LastName,
+Email
+
+FROM
+Customers
+ORDER BY 
+LastName 
+
+/*
+CREATED BY : OWEN REVELL
+CREATE DATE : 22/09/24
+DESCRIPTION : NEW TABLE 
+
+*/
+CREATE TABLE AnniversaryAttendees
+ ( CustomerID INTEGER,
+   PartySize INTEGER
+ );
+
+ /*
+CREATED BY : OWEN REVELL
+CREATE DATE : 22/09/24
+DESCRIPTION : Displaying Menus
+
+*/
+
+SELECT*
+
+FROM 
+Dishes
+
+ORDER BY 
+price 
+
+-- Menu with only appetizers and beverages sorted by type
+
+SELECT*
+
+FROM 
+DISHES 
+
+WHERE 
+Type LIKE 'Appetizer' OR Type LIKE 'Beverage'
+
+ORDER BY 
+Type
+
+-- NOT INCLUDING BEVERAGES 
+
+SELECT*
+
+FROM 
+DISHES
+
+WHERE 
+Type != 'Beverage'
+
+ORDER BY 
+Type;
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 22/09/2024
+DESCRIPTION : insert Additional information into Customers table 
+
+*/
+
+INSERT INTO  Customers
+(FirstName,LastName,Email,Address,City,State,Phone,Birthday)
+VALUES
+('Spoot','Aloot','SpootAloot@gmail.com','1243 SpootNick Way','SpootState', 'VA', '077-000-1255', '2022-01-24' )
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 22/09/2024
+DESCRIPTION : UPDATING RECORDS 
+
+*/
+
+UPDATE  CUSTOMERS 
+
+SET 
+Address = '59 Spoot Lane ',
+City = 'SpootAlootValley',
+State = 'NY'
+WHERE CustomerID = 26;
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 22/09/2024
+DESCRIPTION : DELETING  RECORDS 
+
+*/
+
+-- find norby's ID 
+
+SELECT* 
+FROM 
+Reservations AS r
+JOIN 
+Customers  AS c
+on
+r.CustomerID = c.CustomerID
+Where 
+c.FirstName='Norby'
+AND 
+r.Date > '2022-07-24';
+
+-- Delete that reservation ID which is 2000
+DELETE 
+FROM
+Reservations
+WHERE 
+ReservationID = 2000;
+
+-- Reservation ID 2000 NOW DELETED 
+
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 30/09/2024
+DESCRIPTION : Find a reservation for steven  or similar names on june 18 6:15 pm
+
+*/
+
+SELECT
+r.ReservationID,
+c.CustomerID,
+c.FirstName,
+c.LastName,
+r.Date,
+r.PartySize
+FROM
+Reservations AS r 
+
+
+JOIN
+Customers AS c
+ON
+r.CustomerID = c.CustomerID
+
+WHERE
+c.LastName LIKE 'Ste%' 
+AND 
+PartySize = 4
+
+ORDER BY
+r.date DESC
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 05/10/2024
+DESCRIPTION : Set Cleo Goldwater's Faviourite Dish to Quinoa Salmon Salad
+
+*/
+SELECT
+c.CustomerID,
+c.FirstName,
+c.LastName
+FROM
+Customers AS c
+
+WHERE
+c.Firstname = 'Cleo' -- Customer ID = 42
+
+SELECT
+DishID,
+Name
+
+FROM
+Dishes as d
+
+Where
+Name = 'Quinoa Salmon Salad' -- dish ID = 9
+
+UPDATE Customers 
+SET FavoriteDish = 9 
+WHERE CustomerID = 42
+
+-- Writing this a bit easier with a subquery 
+UPDATE Customer
+SET FavoriteDish = (SELECT DishID FROM Dishes WHERE Name = 'Quinoa Salmon Salad')
+WHERE CustomerID = 42
+
+SELECT
+c.FirstName,
+c.LastName,
+c.FavoriteDish,
+d.DishID,
+d.Name
+FROM 
+Customers as c
+
+JOIN 
+Dishes as d
+
+ON
+c.FavoriteDish = d.DishID
+
+Where 
+c.Firstname = 'Cleo'
+
+--
+/*
+CREATED BY : OWEN 
+CREATE DATE : 05/10/2024
+DESCRIPTION : Select customers who have had the hightest amount of orders ,
+
+*/
+
+SELECT
+COUNT(o.OrderID) AS OrderCount,
+c.FirstName,
+c.LastName,
+c.Email
+FROM 
+Customers as c 
+
+JOIN
+Orders AS o 
+ON
+c.CustomerID = o.CustomerID
+GROUP BY 
+c.CustomerID
+ORDER BY 
+OrderCount DESC
+LIMIT 15
+
+-- Using Libary Data Base
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 05/10/2024
+DESCRIPTION : Select The amount of Dracula books currently available and ready to Lend Out
+
+*/
+
+SELECT 
+COUNT(b.Title)
+
+FROM 
+Books as b 
+
+WHERE 
+b.Title = 'Dracula'
+
+SELECT 
+COUNT(b.Title)
+
+FROM 
+Loans as l 
+JOIN 
+Books as b 
+ON
+l.BookID = b.BookID
+
+WHERE
+b.Title = 'Dracula'
+AND 
+l.ReturnedDate IS NULL 
+-- Taking these  2 values and Subtracting them 
+
+SELECT 
+(SELECT COUNT(b.Title) FROM Books AS b WHERE b.Title = 'Dracula') - 
+
+(SELECT 
+COUNT(b.Title)
+
+FROM 
+Loans as l 
+JOIN 
+Books as b 
+ON
+l.BookID = b.BookID
+
+WHERE
+b.Title = 'Dracula'
+AND 
+l.ReturnedDate IS NULL )
+AS AvailableCopies;
+/*
+CREATED BY : OWEN 
+CREATE DATE : 05/10/2024
+DESCRIPTION : Insert 2 New Books INTO the Books Table
+
+*/
+
+INSERT INTO Books 
+(Title,Author,published,Barcode)
+VALUES
+('Dracula','Bram Stoker','1987','4819277482'),
+('Gulliver''s Travels' ,'Jonathan Swift','1729','4899254401' );
+
+SELECT*
+
+FROM 
+Books 
+
+ORDER BY 
+BookID DESC;
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 05/10/2024
+DESCRIPTION : Enter 2 Books into Loans Table with Loan Dates no return dates 
+
+*/
+INSERT INTO Loans(BookID,PatronID,LoanDate,DueDate)
+VALUES(
+  (Select BookID
+    FROM Books 
+    Where Barcode = '2855934983'),
+  (Select PatronID
+    FROM Patrons 
+    Where Email ='jvaan@wisdompets.com'),
+  '2022-08-25',
+  '2022-09-08'
+
+);
+INSERT INTO Loans (BookID, PatronID, LoanDate, DueDate)
+VALUES (
+  (SELECT BookID 
+    FROM Books 
+    WHERE Barcode = '2855934983'), 
+  (SELECT PatronID 
+    FROM Patrons 
+    WHERE Email = 'jvaan@wisdompets.com'),
+  '2022-08-25',
+  '2022-09-08');
+
+
+SELECT*
+FROM 
+LOANS as l 
+JOIN
+Books as b
+ON 
+l.BookID = b.BookID
+WHERE 
+l.PatronID = (Select PatronID FROM Patrons  WHERE Email = 'jvaan@wisdompets.com')
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 05/10/2024
+DESCRIPTION : Search Current books out that havnt been returned
+
+*/
+
+SELECT 
+l.DueDate,
+b.Title,
+p.FirstName,
+p.LastName
+FROM 
+Loans AS l
+
+JOIN 
+Books as b 
+ON
+l.BookID = b.BookID
+
+JOIN
+Patrons as p 
+ON
+p.PatronID = l.PatronID
+
+WHERE
+l.DueDate='2022-07-13'
+AND 
+l.ReturnedDate IS NULL
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 06/10/2024
+DESCRIPTION : Return Books via the barcode Given
+
+*/
+
+UPDATE Loans 
+Set
+ReturnedDate = '2022-07-05'
+WHERE BookID = 
+(Select BookID 
+From Books
+Where Barcode = '6425968624')
+AND ReturnedDate IS NULL
+
+
+UPDATE Loans 
+Set
+ReturnedDate = '2022-07-05'
+WHERE BookID = 
+(Select BookID 
+From Books
+Where Barcode = '5677520613')
+AND ReturnedDate IS NULL
+
+UPDATE Loans 
+SET ReturnedDate = '2022-07-04'
+WHERE BookID = 
+(Select BookID 
+From Books
+Where Barcode = '8730298424')
+AND ReturnedDate IS NULL;
+
+SELECT*
+
+FROM 
+Loans as l 
+WHERE 
+l.BookID = (Select BookID 
+From Books
+Where Barcode = '8730298424');
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 06/10/2024
+DESCRIPTION : Crate a statement outputting the customers who loan out the least amount of books 
+*/
+
+SELECT
+COUNT(l.LoanID) AS LoanCount , 
+p.FirstName,
+p.LastName,
+p.Email
+FROM 
+Loans as l 
+
+JOIN 
+Patrons as p  
+
+ON 
+l.PatronID = p.PatronID 
+
+GROUP BY 
+l.PatronID
+
+ORDER BY 
+LoanCount ASC
+
+
+/*
+CREATED BY : OWEN 
+CREATE DATE : 06/10/2024
+DESCRIPTION : Create a report of books published between 1890 - 1899 and ready to be checked out 
+*/
+
+SELECT 
+b.Title, 
+b.Barcode
+FROM 
+Books as b 
+
+WHERE
+b.Published BETWEEN 1890 AND 1899 
+AND 
+(b.BookID NOT IN ( SELECT BookID FROM Loans WHERE ReturnedDate IS NULL))
+ORDER BY  Title;
+/*
+CREATED BY : OWEN 
+CREATE DATE : 06/10/2024
+DESCRIPTION : Report of how many books were published per Year  / Boooks that have been loaned out the most 
+*/
+
+SELECT 
+b.Published , 
+COUNT(DISTINCT b.Title) AS Count
+
+FROM 
+Books as b
+GROUP BY 
+b.published
+ORDER BY Count DESC;
+
+
+SELECT
+COUNT(l.LoanID) AS LoanCount , 
+b.Title
+
+FROM
+Loans  as l
+
+JOIN
+Books as b
+
+ON 
+l.BookID = b.BookID
+
+GROUP BY
+b.Title
+
+Order BY 
+LoanCount DESC;
